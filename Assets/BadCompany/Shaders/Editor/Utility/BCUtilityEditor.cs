@@ -323,6 +323,12 @@ namespace BadCompany.Shaders.Utility
                 //DECOMPOSERS
                 GUILayout.Label("Game Texture Decomposers", EditorStyles.label);
                 GUILayout.Space(2f);
+                if (GUILayout.Button(new GUIContent("Decompose Halo CE Textures", "Decomposes assigned Halo: Combat Evolved 'Multipurpose' textures into illumination, CC, metallic smoothness, and roughness textures."), GUILayout.Width(250f)))
+                {
+                    //run the cyborg decompose
+                    CyborgDecomposer.DecomposeMultipurposeTexture(cc.textureValue as Texture2D, cc.textureValue as UnityEngine.Object);
+                }
+                GUILayout.Space(4f);
                 if (GUILayout.Button(new GUIContent("Decompose Storm Textures", "Decomposes assigned Halo 4 'Storm' textures into traditional diffuse, metallic/specular ('technically' your choice), and Halo 5-compatible color control textures."), GUILayout.Width(250f)) && isH4.floatValue == 1)
                 {
                     //run the storm decompose

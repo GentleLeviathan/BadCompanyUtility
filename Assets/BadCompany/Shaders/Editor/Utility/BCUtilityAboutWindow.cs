@@ -134,7 +134,7 @@ namespace BadCompany.Shaders.Utility
 
         public static void OpenRepository()
         {
-            Application.OpenURL("https://github.com/GentleLeviathan/BadCompanyUtility/tree/main");
+            Application.OpenURL("https://github.com/GentleLeviathan/BadCompanyUtility/releases");
         }
     }
 }
