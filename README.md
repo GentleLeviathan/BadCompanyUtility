@@ -6,7 +6,7 @@ Supports armor sets and textures from the following 'Halo' games:
 
 * Halo Reach
 * Halo: Combat Evolved
-* Halo 2
+* Halo 2 (currently limited)
 * Halo 3: ODST
 * Halo 3
 * Halo 4 (Storm)
