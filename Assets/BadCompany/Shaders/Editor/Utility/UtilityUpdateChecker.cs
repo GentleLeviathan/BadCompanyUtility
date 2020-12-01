@@ -6,7 +6,7 @@ namespace BadCompany.Shaders.Utility
 {
     public static class UtilityUpdateChecker
     {
-        public static string currentVersion = "V.1.0.0.1128.U-PR1";
+        public static string currentVersion = "V.1.0.0.1130.U-PR1.1";
 
         public static async Task<bool> CheckForUpdates()
         {
