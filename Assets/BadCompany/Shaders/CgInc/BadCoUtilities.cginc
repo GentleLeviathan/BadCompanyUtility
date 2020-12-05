@@ -52,6 +52,18 @@ SOFTWARE.
 		return _in;
 	}
 
+	half eq(half a, half b){
+		return 1.0 - abs(sign(a - b));
+	}
+
+	half gT(half a, half b){
+		return max(sign(a - b), 0.0);
+	}
+
+	half lT(half a, half b){
+		return max(sign(b - a), 0.0);
+	}
+
 	//Borrowed from https://catlikecoding.com/, thanks!
 	float3 BoxProjection (float3 direction, float3 position, float3 cubemapPosition, float3 boxMin, float3 boxMax){
 		float3 factors = ((direction > 0 ? boxMax : boxMin) - position) / (direction + 0.0001);

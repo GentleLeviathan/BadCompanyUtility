@@ -20,7 +20,7 @@ namespace BadCompany.Shaders.Utility
             {
                 importer.crunchedCompression = false;
                 importer.SaveAndReimport();
-                Debug.Log("FForgeDecomposer: Texture was crunched, passing importer");
+                Debug.Log("StormDecomposer: Texture was crunched, passing importer");
                 Decompose(stormTexture, savePath, importer);
             }
             else

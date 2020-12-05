@@ -29,7 +29,7 @@ SOFTWARE.
 
 Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 {
-	Properties
+		Properties
 	{
 		_MainTex("Diffuse", 2D) = "white" {}
 		[HideInInspector]_CC("CC", 2D) = "red" {}
@@ -102,21 +102,21 @@ Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 				half4 occlusionTex = tex2D(_Occlusion, i.uv.xy);
 
 				//desaturation
-				diffuse.xyz = _ColorTexture > 0 ? Desaturate(diffuse.xyz) : diffuse.xyz;
+				diffuse.xyz = lerp(diffuse.xyz, Desaturate(diffuse.xyz), gT(_ColorTexture, 0));
 
 				//'deepness'
 				diffuse = lerp(diffuse, diffuse * diffuse, _Deepness);
 
 				//h5 cc correction because buttloads of compression artifacts
-				cc.r = _isH5 > 0 && cc.r > 0.15 ? 1 : cc.r;
-				cc.g = _isH5 > 0 && cc.g > 0.3 && cc.r < 0.15 ? 1 : cc.g;
+				half h5Check = gT(_isH5, 0);
+				cc.r = (cc.r * lT(_isH5, 1)) + ((h5Check * 0.976) * gT(cc.r, 0.15));
+				cc.g = (cc.g * lT(_isH5, 1)) + ((h5Check * 0.976) * lT(cc.r, 0.15) * gT(cc.g, 0.3));
 
 				//storm texture replacements
-				if(_isH4 > 0){
-					diffuse = half4(diffuse.g, diffuse.g, diffuse.g, diffuse.a);
-					cc.g = diffuse.a > 0 ? clamp01((1 - diffuse.a) * 2) : 0;
-					cc.r = pow(diffuse.a, 10);
-				}
+				half stormCheck = gT(_isH4, 0);
+				diffuse = lerp(diffuse, half4(diffuse.ggg, diffuse.a), stormCheck);
+				cc.g = lerp(cc.g, clamp01((1.0 - diffuse.a) * 2), stormCheck * gT(diffuse.a, 0));
+				cc.r = lerp(cc.r, pow(diffuse.a, 10), stormCheck);
 
 				//masking
 				half4 black = half4(0,0,0,0);
@@ -276,22 +276,21 @@ Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 			float3 finalNormal = UnpackNormal(float4(normal.r, 1 - normal.g, normal.b, normal.a));
 
 			//desaturation
-			diffuse.xyz = _ColorTexture > 0 ? Desaturate(diffuse.xyz) : diffuse.xyz;
+			diffuse.xyz = lerp(diffuse.xyz, Desaturate(diffuse.xyz), gT(_ColorTexture, 0));
 
 			//color 'deepness'
 			diffuse = lerp(diffuse, diffuse * diffuse, _Deepness);
 
 			//h5 cc correction because buttloads of compression artifacts
-			cc.r = _isH5 > 0 && cc.r > 0.15 ? 0.976 : cc.r;
-			cc.g = _isH5 > 0 && cc.g > 0.3 && cc.r < 0.15 ? 0.976 : cc.g;
-
+			half h5Check = gT(_isH5, 0);
+			cc.r = (cc.r * lT(_isH5, 1)) + ((h5Check * 0.976) * gT(cc.r, 0.15));
+			cc.g = (cc.g * lT(_isH5, 1)) + ((h5Check * 0.976) * lT(cc.r, 0.15) * gT(cc.g, 0.3));
 
 			//storm texture replacements
-			if(_isH4 > 0){
-				diffuse = half4(diffuse.g, diffuse.g, diffuse.g, diffuse.a);
-				cc.g = diffuse.a > 0 ? clamp01((1 - diffuse.a) * 2) : 0;
-				cc.r = pow(diffuse.a, 10);
-			}
+			half stormCheck = gT(_isH4, 0);
+			diffuse = lerp(diffuse, half4(diffuse.ggg, diffuse.a), stormCheck);
+			cc.g = lerp(cc.g, clamp01((1.0 - diffuse.a) * 2), stormCheck * gT(diffuse.a, 0));
+			cc.r = lerp(cc.r, pow(diffuse.a, 10), stormCheck);
 
 			//masking
 			half4 black = half4(0,0,0,0);
@@ -311,16 +310,17 @@ Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 			half diffuseA = remap(0, 1, 0.5, 1, diffuse.a);
 			half bungieRoughness = clamp01(diffuseA * (0.99 - _Roughness));
 			half h5Roughness = clamp01(cc.a * 1.5) * (0.99 - _Roughness) - 0.1;
-			calculatedRoughness = _isH5 > 0 ? h5Roughness : calculatedRoughness;
-			calculatedRoughness = _isH4 > 0 ? diffuse.r * (0.99 - _Roughness) : calculatedRoughness;
-			calculatedRoughness = _BungieRoughness > 0 ? bungieRoughness : calculatedRoughness;
-			calculatedRoughness = textureRoughness > 0 ? textureRoughness : calculatedRoughness;
-			calculatedRoughness = _isSimpleRoughness > 0 ? 0.99 - _Roughness : calculatedRoughness;
+
+			calculatedRoughness = lerp(calculatedRoughness, h5Roughness, h5Check);
+			calculatedRoughness = lerp(calculatedRoughness, diffuse.r * (0.99 - _Roughness), stormCheck);
+			calculatedRoughness = lerp(calculatedRoughness, bungieRoughness, gT(_BungieRoughness, 0));
+			calculatedRoughness = lerp(calculatedRoughness, textureRoughness, gT(textureRoughness, 0));
+			calculatedRoughness = lerp(calculatedRoughness, 0.99 - _Roughness, gT(_isSimpleRoughness, 0));
 
 			//others
 			half4 illumination = illumTex * _IllumColor;
 			metallicTex *= _MetallicEffect;
-			metallicTex = _isH5 > 0 ? metallicTex * (1 - cc.b) : metallicTex;
+			metallicTex = lerp(metallicTex, metallicTex * (1 - cc.b), h5Check);
 
 			//finalColor
 			half4 finalColor = primary + secondary + tertiary + passthrough;
@@ -337,9 +337,9 @@ Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 			half customSpecular = (primarySpecular + secondarySpecular + specularPassthrough) * _Specular;
 			half finalSpecular = _Specular * finalSpecularColor;
 			half h5Spec = clamp01((cc.b + 0.01 * finalSpecular) / (cc.b * 4 + 0.01));
-			finalSpecular = _isH5 > 0 ? h5Spec * _Specular : finalSpecular;
-			finalSpecular = _isH4 > 0 ? diffuse.g * _Specular : finalSpecular;
-			finalSpecular = customSpecular.r > 0 ? finalColor * customSpecular : finalSpecular;
+			finalSpecular = lerp(finalSpecular, h5Spec * _Specular, h5Check);
+			finalSpecular = lerp(finalSpecular, diffuse.g * _Specular, stormCheck);
+			finalSpecular = lerp(finalSpecular, finalColor * customSpecular, gT(customSpecular, 0));
 
 			//reflection probe support
 			half3 reflectDir = WorldReflectionVector(i, finalNormal);
@@ -356,7 +356,7 @@ Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 
 			//cubemapped reflection support
 			half3 cubeColor = UNITY_SAMPLE_TEXCUBE_LOD(_CubeReflection, reflectDir, envData.roughness * UNITY_SPECCUBE_LOD_STEPS).rgb;
-			skyColor = _cubemappedReflection > 0 ? cubeColor : skyColor;
+			skyColor = lerp(skyColor, cubeColor, gT(_cubemappedReflection, 0));
 			skyColor *= occlusionTex.xyz;
 
 			//metallic effect
@@ -372,7 +372,7 @@ Shader "Hidden/BadCompany/Bad Company Utility (Detail Divide)"
 			o.Albedo = finalColor;
 			o.Normal = finalNormal + UnpackNormal(detailNormal);
 			o.Specular = finalSpecular;
-			o.Gloss = clamp01(calculatedRoughness + 0.01);
+			o.Gloss = saturate(calculatedRoughness + 0.01);
 			o.Emission = illumination + skyColor + (finalColor * _lightingBypass);
 			o.Alpha = displayMetalProperty;
 		}
