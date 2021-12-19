@@ -1,6 +1,9 @@
 # BadCompanyUtility
 Bad Company Utility Shader Suite
 
+## This repository is now archived as I don't have any plans to continue working on it.
+The [Aurora Shader Suite](https://github.com/GentleLeviathan/Aurora-Shader-Suite) has replaced it.
+
 A suite of tools and shaders designed for using assets inspired by Microsoft's 'Halo' assets in Unity.
 Supports armor sets and textures from the following 'Halo' games:
 
